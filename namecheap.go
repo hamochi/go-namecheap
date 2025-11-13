@@ -56,7 +56,7 @@ type ApiResponse struct {
 	DomainRenew         *DomainRenewResult         `xml:"CommandResponse>DomainRenewResult"`
 	DomainReactivate    *DomainReactivateResult    `xml:"CommandResponse>DomainReactivateResult"`
 	DomainSetContacts   *DomainSetContactsResult   `xml:"CommandResponse>DomainSetContactResult"`
-	DomainGetContacts   *DomainGetContactsResult   `xml:"CommandResponse>DomainGetContactsResult"`
+	DomainGetContacts   *DomainGetContactsResult   `xml:"CommandResponse>DomainContactsResult"`
 	DomainsCheck        []DomainCheckResult        `xml:"CommandResponse>DomainCheckResult"`
 	DomainNSInfo        *DomainNSInfoResult        `xml:"CommandResponse>DomainNSInfoResult"`
 	DomainDNSSetCustom  *DomainDNSSetCustomResult  `xml:"CommandResponse>DomainDNSSetCustomResult"`
