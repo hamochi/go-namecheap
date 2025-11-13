@@ -16,6 +16,7 @@ const (
 	domainsRenew       = "namecheap.domains.renew"
 	domainsReactivate  = "namecheap.domains.reactivate"
 	domainsSetContacts = "namecheap.domains.setContacts"
+	domainsGetContacts = "namecheap.domains.getContacts"
 )
 
 // DomainGetListResult represents the data returned by 'domains.getList'
@@ -105,6 +106,27 @@ type DomainReactivateResult struct {
 type DomainSetContactsResult struct {
 	Name            string `xml:"Domain,attr"`
 	ContactsChanged bool   `xml:"IsSuccess,attr"`
+}
+
+type DomainGetContactsResult struct {
+	Domain     string              `xml:"Domain,attr"`
+	Registrant DomainContactDetail `xml:"Registrant"`
+	Tech       DomainContactDetail `xml:"Tech"`
+	Admin      DomainContactDetail `xml:"Admin"`
+	AuxBilling DomainContactDetail `xml:"AuxBilling"`
+}
+
+type DomainContactDetail struct {
+	FirstName     string `xml:"FirstName"`
+	LastName      string `xml:"LastName"`
+	Address1      string `xml:"Address1"`
+	Address2      string `xml:"Address2"`
+	City          string `xml:"City"`
+	StateProvince string `xml:"StateProvince"`
+	PostalCode    string `xml:"PostalCode"`
+	Country       string `xml:"Country"`
+	Phone         string `xml:"Phone"`
+	EmailAddress  string `xml:"EmailAddress"`
 }
 
 type DomainCreateOption struct {
@@ -269,4 +291,20 @@ func (client *Client) DomainSetContacts(domainName string, registrant *Registran
 	}
 
 	return resp.DomainSetContacts, nil
+}
+
+func (client *Client) DomainGetContacts(domainName string) (*DomainGetContactsResult, error) {
+	requestInfo := &ApiRequest{
+		command: domainsGetContacts,
+		method:  "POST",
+		params:  url.Values{},
+	}
+	requestInfo.params.Set("DomainName", domainName)
+
+	resp, err := client.do(requestInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.DomainGetContacts, nil
 }

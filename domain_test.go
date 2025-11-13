@@ -507,3 +507,139 @@ func TestDomainsSetContacts(t *testing.T) {
 		t.Errorf("DomainSetContacts returned %+v, want %+v", result, want)
 	}
 }
+
+func TestDomainsGetContacts(t *testing.T) {
+	setup()
+	defer teardown()
+
+	respXML := `<?xml version="1.0" encoding="UTF-8"?>
+<ApiResponse xmlns="http://api.namecheap.com/xml.response" Status="OK">
+  <Errors />
+  <RequestedCommand>namecheap.domains.getContacts</RequestedCommand>
+  <CommandResponse Type="namecheap.domains.getContacts">
+    <DomainGetContactsResult Domain="domain1.com">
+      <Registrant>
+        <FirstName>John</FirstName>
+        <LastName>Smith</LastName>
+        <Address1>8939 S.cross Blvd</Address1>
+        <Address2></Address2>
+        <City>Los Angeles</City>
+        <StateProvince>CA</StateProvince>
+        <PostalCode>90045</PostalCode>
+        <Country>US</Country>
+        <Phone>+1.6613102107</Phone>
+        <EmailAddress>john@gmail.com</EmailAddress>
+      </Registrant>
+      <Tech>
+        <FirstName>Jane</FirstName>
+        <LastName>Doe</LastName>
+        <Address1>123 Tech St</Address1>
+        <Address2>Apt 5</Address2>
+        <City>San Francisco</City>
+        <StateProvince>CA</StateProvince>
+        <PostalCode>94102</PostalCode>
+        <Country>US</Country>
+        <Phone>+1.4155551234</Phone>
+        <EmailAddress>jane@example.com</EmailAddress>
+      </Tech>
+      <Admin>
+        <FirstName>Bob</FirstName>
+        <LastName>Admin</LastName>
+        <Address1>456 Admin Ave</Address1>
+        <Address2></Address2>
+        <City>Seattle</City>
+        <StateProvince>WA</StateProvince>
+        <PostalCode>98101</PostalCode>
+        <Country>US</Country>
+        <Phone>+1.2065551234</Phone>
+        <EmailAddress>bob@example.com</EmailAddress>
+      </Admin>
+      <AuxBilling>
+        <FirstName>Alice</FirstName>
+        <LastName>Billing</LastName>
+        <Address1>789 Billing Blvd</Address1>
+        <Address2></Address2>
+        <City>Portland</City>
+        <StateProvince>OR</StateProvince>
+        <PostalCode>97201</PostalCode>
+        <Country>US</Country>
+        <Phone>+1.5035551234</Phone>
+        <EmailAddress>alice@example.com</EmailAddress>
+      </AuxBilling>
+    </DomainGetContactsResult>
+  </CommandResponse>
+  <Server>SERVER-NAME</Server>
+  <GMTTimeDifference>+5</GMTTimeDifference>
+  <ExecutionTime>0.078</ExecutionTime>
+</ApiResponse>`
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		correctParams := fillDefaultParams(url.Values{})
+		correctParams.Set("Command", "namecheap.domains.getContacts")
+		correctParams.Set("DomainName", "domain1.com")
+		testBody(t, r, correctParams)
+		testMethod(t, r, "POST")
+		fmt.Fprint(w, respXML)
+	})
+
+	result, err := client.DomainGetContacts("domain1.com")
+	if err != nil {
+		t.Errorf("DomainGetContacts returned error: %v", err)
+	}
+
+	// DomainGetContactsResult we expect, given the respXML above
+	want := &DomainGetContactsResult{
+		Domain: "domain1.com",
+		Registrant: DomainContactDetail{
+			FirstName:     "John",
+			LastName:      "Smith",
+			Address1:      "8939 S.cross Blvd",
+			Address2:      "",
+			City:          "Los Angeles",
+			StateProvince: "CA",
+			PostalCode:    "90045",
+			Country:       "US",
+			Phone:         "+1.6613102107",
+			EmailAddress:  "john@gmail.com",
+		},
+		Tech: DomainContactDetail{
+			FirstName:     "Jane",
+			LastName:      "Doe",
+			Address1:      "123 Tech St",
+			Address2:      "Apt 5",
+			City:          "San Francisco",
+			StateProvince: "CA",
+			PostalCode:    "94102",
+			Country:       "US",
+			Phone:         "+1.4155551234",
+			EmailAddress:  "jane@example.com",
+		},
+		Admin: DomainContactDetail{
+			FirstName:     "Bob",
+			LastName:      "Admin",
+			Address1:      "456 Admin Ave",
+			Address2:      "",
+			City:          "Seattle",
+			StateProvince: "WA",
+			PostalCode:    "98101",
+			Country:       "US",
+			Phone:         "+1.2065551234",
+			EmailAddress:  "bob@example.com",
+		},
+		AuxBilling: DomainContactDetail{
+			FirstName:     "Alice",
+			LastName:      "Billing",
+			Address1:      "789 Billing Blvd",
+			Address2:      "",
+			City:          "Portland",
+			StateProvince: "OR",
+			PostalCode:    "97201",
+			Country:       "US",
+			Phone:         "+1.5035551234",
+			EmailAddress:  "alice@example.com",
+		},
+	}
+	if !reflect.DeepEqual(result, want) {
+		t.Errorf("DomainGetContacts returned %+v, want %+v", result, want)
+	}
+}
